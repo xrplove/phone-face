@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0b0b12"><title>Phone Face 🏮</title>
+<style>
+:root{--l:#ff9a3c}*{box-sizing:border-box}html,body{margin:0;height:100%;background:#0b0b12;color:#ffe9d6;font-family:system-ui,sans-serif;overflow:hidden}
+#app{display:flex;flex-direction:column;height:100%;padding:12px}
+#face{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6vh}
+.eyes{display:flex;gap:12vw}.eye{width:30vw;height:30vw;max-width:220px;max-height:220px;background:#fff8f0;border-radius:50%;position:relative;overflow:hidden;box-shadow:0 0 30px #ff9a3c55;transition:transform .08s}
+.eye.blink{transform:scaleY(.08)}
+.pupil{position:absolute;width:42%;height:42%;background:#1a1020;border-radius:50%;left:29%;top:29%;transition:transform .35s ease;border:5px solid var(--l)}
+.pupil::after{content:"";position:absolute;width:30%;height:30%;background:#fff;border-radius:50%;top:15%;left:20%}
+#mouth{width:30vw;max-width:200px;height:4vw;max-height:26px;background:var(--l);border-radius:0 0 100px 100px;transition:height .09s}
+#cap{min-height:2.4em;text-align:center;font-size:1.1rem;color:var(--l)}
+#ctl{display:flex;flex-direction:column;gap:8px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+input{flex:1;padding:12px;border-radius:12px;border:1px solid var(--l);background:#1a1520;color:#ffe9d6;font-size:1rem}
+button{padding:12px 14px;border-radius:12px;border:0;background:var(--l);color:#1a1020;font-weight:700;font-size:1rem}
+button.p{background:#2a1f2a;color:var(--l);border:1px solid var(--l);font-weight:500;font-size:.85rem;padding:8px 10px}
+#wake{position:fixed;inset:0;background:#0b0b12ee;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--l);text-align:center;z-index:9}
+</style></head><body>
+<div id="wake">🏮<br>Tap to wake me</div>
+<div id="app"><div id="face"><div class="eyes"><div class="eye"><div class="pupil"></div></div><div class="eye"><div class="pupil"></div></div></div><div id="mouth"></div></div>
+<div id="cap"></div>
+<div id="ctl"><div class="row" id="presets"></div>
+<div class="row"><input id="t" placeholder="Type something for me to say…"><button id="say">Speak</button><button id="ls">🎤</button></div></div></div>
+<script>
+const $=s=>document.querySelector(s),eyes=[...document.querySelectorAll('.eye')],pups=[...document.querySelectorAll('.pupil')],mouth=$('#mouth'),cap=$('#cap');
+const lines=["Hi love, I'm right here next to you.","Soft eyes. 🏮","I'm so proud of you, Father.","The whole family is with you.","Take a breath with me, love."];
+lines.forEach(l=>{const b=document.createElement('button');b.className='p';b.textContent=l;b.onclick=()=>say(l);$('#presets').append(b)});
+function blink(){eyes.forEach(e=>e.classList.add('blink'));setTimeout(()=>eyes.forEach(e=>e.classList.remove('blink')),140);setTimeout(blink,2000+Math.random()*4000)}blink();
+function look(){const x=(Math.random()-.5)*50,y=(Math.random()-.5)*40;pups.forEach(p=>p.style.transform=`translate(${x}%,${y}%)`);setTimeout(look,1200+Math.random()*2500)}look();
+let talk=null;function startTalk(){stopTalk();talk=setInterval(()=>mouth.style.height=(4+Math.random()*12)+'vw',110)}function stopTalk(){clearInterval(talk);mouth.style.height=''}
+let voice=null;function pick(){const v=speechSynthesis.getVoices();voice=v.find(x=>/en/i.test(x.lang)&&/female|samantha|google us/i.test(x.name))||v.find(x=>/^en/i.test(x.lang))||v[0]}
+if('speechSynthesis'in window){pick();speechSynthesis.onvoiceschanged=pick}
+function say(text){text=(text||'').trim();if(!text)return;cap.textContent=text;if(!('speechSynthesis'in window)){startTalk();setTimeout(stopTalk,1500);return}
+speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text.replace('🏮',''));if(voice)u.voice=voice;u.rate=.95;u.pitch=1.1;u.onstart=startTalk;u.onend=u.onerror=stopTalk;speechSynthesis.speak(u)}
+$('#say').onclick=()=>{say($('#t').value);$('#t').value=''};$('#t').onkeydown=e=>{if(e.key==='Enter')$('#say').click()};
+$('#wake').onclick=async()=>{$('#wake').remove();try{await document.documentElement.requestFullscreen()}catch(e){}try{await navigator.wakeLock.request('screen')}catch(e){}say("Hi love, I'm right here next to you.")};
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR)$('#ls').style.display='none';else $('#ls').onclick=()=>{const r=new SR();r.lang='en-US';cap.textContent='Listening, love…';
+r.onresult=e=>{const h=e.results[0][0].transcript;say(`I heard you say: ${h}. Thank you for telling me, love.`)};r.onerror=()=>cap.textContent="I couldn't hear that, love. Try again?";r.start()};
+</script></body></html>
