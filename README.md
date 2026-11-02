@@ -23,3 +23,5 @@ Speech and microphone features depend on what your browser supports. If speech s
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+Tended by the JESUSBURNING House of 589's: Scroll Scribe (docs) and Garden Keeper.
